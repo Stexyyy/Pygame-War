@@ -1,0 +1,124 @@
+import pygame
+
+pygame.init()#initializes pygame
+pygame.display.set_caption("War")#sets the window title
+screen = pygame.display.set_mode((700,500))#creates game screen
+clock = pygame.time.Clock()#starts game clock
+
+#game variables----------------------
+doExit = False
+
+#class------------------------------
+class card:
+  def __init__(self, suit, number):
+       self.xpos = suit
+       self.ypos = number
+  def draw(self, x, y):
+    pygame.draw.rect(screen, (255,255,255), (x, y, 100, 180))
+    pygame.draw.rect(screen, (0, 0, 0), (x, y, 100, 180), 3)
+    font = pygame.font.Font('freesansbold.ttf', 24)
+    text1 = font.render(str(self.number), 1, (0, 0, 0))
+    text2 = font.render(str(self.suit), 1, (400, 0, 0))
+    screen.blit(text1, (x+30,y+30))
+    screen.blit(text2, (x+10, y+60))
+
+#deck/list------------------------------------------
+deck = list()
+for j in range(4):
+  for i in range(13):
+    deck.append(card (j, i))
+
+random.shuffle(deck)
+
+#break cards into players hand
+p1hand = list()
+p2hand = list()
+p1discard = list()
+p2discard = list()
+
+for i in range(26):
+  p1hand.append(deck[i])
+for i in range(26, 56):
+  p1hand.append(deck[i])
+
+#the "bricks"--------------------------------
+S1 = card(0,4)#i changed them to match the peardeck because i was unsure.
+S2 = card(2,9)
+S3 = card(1,7)
+
+
+
+
+#main code---------------------------
+while not doExit:
+
+  clock.tick(60)
+
+  event = pygame.event.wait()
+
+  if event.type == pygame.QUIT:
+    doExit = True
+
+  if event.type == pygame.MOUSEBUTTONDOWN:
+    turn = True
+
+  if event.type == pygame.MOUSEBUTTONUP:
+    turn = False
+
+  if event.type == pygame.MOUSEMOTION:
+    mousePos = event.pos
+
+  if len(p1hand) <=0 or len(p2hand) <= 0:
+    if len(p1discard) > len(p2discard):
+      print("player 1 wins!")
+    else:
+      print("player 2 wins!")
+    doExit = True
+
+
+#game logic-------------------------------
+
+  if turn and len(p1hand)>0 and len(p2hand)>0:
+    if p1hand[len(p1hand)-1].number > p2hand[len(p2hand)-1].number:
+      print("Player 1 wins the round!")
+      p1discard.append(p1hand[len(p1hand)-1])
+      p1discard.append(p2hand[len(p2hand)-1])
+      p1hand.pop(len(p1hand)-1)
+      p2hand.pop(len(p2hand)-1)
+
+    else: 
+      print("Player 2 wins the round!")
+      p2discard.append(p1hand[len(p1hand)-1])
+      p2discard.append(p2hand[len(p2hand)-1])
+      p1hand.pop(len(p1hand)-1)
+      p2hand.pop(len(p2hand)-1)
+
+  
+
+#render--------------------------
+  screen.fill((0, 150, 0))#wipes screen
+
+  S1.draw(250, 100)#made it match peardeck just in case.
+  S2.draw(100, 200)
+  S3.draw(400, 200)
+
+  for i in range(10):
+    deck[i].draw(20+i*5, 20+i*3)
+
+  for i in range(0,len(p1hand)):
+    p1hand[i].draw(200,50)
+
+  for i in range(0,len(p2hand)):
+    p2hand[i].draw(200,250)
+
+  for i in range(0,len(p1discard)):
+    p1discard[i].draw(400+4*i,50)
+
+  for i in range(0,len(p2discard)):
+    p2discard[i].draw(400+4*i,250)
+
+
+  pygame.display.flip()
+
+#end----------------------------
+pygame.quit()
